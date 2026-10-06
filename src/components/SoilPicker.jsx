@@ -5,7 +5,6 @@ function SoilPicker({
   onSoilChange,
   advice,
   aiStatus,
-  aiProgress,
   aiMessage,
   onLoadAI,
 }) {
@@ -47,16 +46,8 @@ function SoilPicker({
           onClick={onLoadAI}
           disabled={aiStatus === "loading" || aiStatus === "ready"}
         >
-          {aiStatus === "loading" ? "Loading AI model…" : aiStatus === "ready" ? "AI model ready" : "Load AI model"}
+          {aiStatus === "loading" ? "Connecting to Ollama…" : aiStatus === "ready" ? "Gemma connected" : "Connect to local Gemma"}
         </button>
-        {aiStatus === "loading" && (
-          <progress
-            className="ai-progress"
-            max="1"
-            value={aiProgress ?? undefined}
-            aria-label="AI model download progress"
-          />
-        )}
         <p className={`ai-status ai-status-${aiStatus}`} role="status">
           <span>{aiStatus === "loading" ? "Loading" : aiStatus === "ready" ? "Ready" : "Offline fallback"}</span>
           {" — "}{aiMessage}

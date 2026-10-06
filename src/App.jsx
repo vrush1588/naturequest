@@ -20,9 +20,8 @@ function App() {
   const [storageError, setStorageError] = useState("");
   const [isLoadingEntries, setIsLoadingEntries] = useState(true);
   const [aiStatus, setAiStatus] = useState("fallback");
-  const [aiProgress, setAiProgress] = useState(null);
   const [aiMessage, setAiMessage] = useState(
-    "Built-in Tulsi advice is available anytime.",
+    "Connect to local Ollama to use Gemma; built-in advice is always available.",
   );
   const [aiAdvice, setAiAdvice] = useState("");
   const [planMessage, setPlanMessage] = useState("");
@@ -94,21 +93,15 @@ function App() {
 
   async function handleLoadModel() {
     setAiStatus("loading");
-    setAiProgress(0);
-    setAiMessage("Downloading the quantized Gemma model (about 240 MB)...");
+    setAiMessage("Connecting to Ollama at http://localhost:11434...");
 
     try {
-      await loadModel(setAiProgress);
+      await loadModel();
       setAiStatus("ready");
-      setAiMessage("Gemma is ready on this device.");
+      setAiMessage("Connected to Ollama with gemma3:4b.");
     } catch (error) {
       setAiStatus("fallback");
-      setAiProgress(null);
-      if (error.message.includes("WebGPU")) {
-        setAiMessage("This browser or device does not support WebGPU. Using built-in Tulsi advice.");
-      } else {
-        setAiMessage("The AI model could not be loaded. Check your connection and Gemma license access; using built-in Tulsi advice.");
-      }
+      setAiMessage(`${error.message} Using built-in Tulsi advice.`);
     }
   }
 
@@ -194,7 +187,6 @@ function App() {
             onSoilChange={setSoil}
             advice={advice}
             aiStatus={aiStatus}
-            aiProgress={aiProgress}
             aiMessage={aiMessage}
             onLoadAI={handleLoadModel}
           />

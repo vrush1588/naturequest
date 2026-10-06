@@ -28,15 +28,21 @@ npm run dev
 
 Create a production build with `npm run build`.
 
-## On-device AI
+## Local AI with Ollama
 
-Select **Load AI model** to download the quantized Gemma 3 270M web model
-(about 240 MB). The model is cached in this browser after its first download.
-AI inference requires a browser and device with WebGPU support. Gemma is subject
-to Google's [Gemma Terms](https://ai.google.dev/gemma/terms); review and accept
-the terms at the [model source](https://huggingface.co/litert-community/gemma-3-270m-it)
-before loading it. If AI is unavailable, Naturequest continues to show its
-built-in Tulsi care advice.
+Naturequest uses the locally installed `gemma3:4b` model through Ollama's API
+at `http://localhost:11434`. Install and start Ollama, then download the model:
+
+```sh
+ollama pull gemma3:4b
+ollama serve
+```
+
+In another terminal, run `npm run dev` and choose **Connect to local Gemma**.
+If the browser blocks the request because of CORS, allow the local Vite origin
+in Ollama's `OLLAMA_ORIGINS` setting (for example,
+`http://localhost:5173,http://127.0.0.1:5173`) and restart Ollama. Naturequest
+continues to use built-in Tulsi care advice and quests when Ollama is unavailable.
 
 Nature log photos are resized to at most 800 pixels and stored as data URLs in
 local storage with their entries. The screen/outside timer counts time while
