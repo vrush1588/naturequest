@@ -15,7 +15,7 @@ async function fetchOllama(path, options) {
     response = await fetch(`${getOllamaApiUrl()}${path}`, options);
   } catch {
     throw new Error(
-      `Could not reach Ollama at ${getOllamaApiUrl()}. On mobile, open Naturequest using your computer's LAN IP and allow that app origin in Ollama's OLLAMA_ORIGINS.`,
+      `Could not reach Ollama at ${getOllamaApiUrl()}. On mobile, open Petal & Leaf using your computer's LAN IP and allow that app origin in Ollama's OLLAMA_ORIGINS.`,
     );
   }
 

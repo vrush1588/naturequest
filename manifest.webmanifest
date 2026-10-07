@@ -1,0 +1,8 @@
+{
+  "name": "Petal & Leaf",
+  "short_name": "Petal & Leaf",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3f7ed",
+  "theme_color": "#f3f7ed"
+}

@@ -96,7 +96,7 @@ function OutsideTracker() {
     <section className="panel tracker-panel" aria-labelledby="tracker-title">
       <h2 id="tracker-title">Screen time vs outside time</h2>
       <p className="tracker-description">
-        Time is counted as screen use while Naturequest is visible and outside time while it is hidden.
+        Time is counted as screen use while Petal & Leaf is visible and outside time while it is hidden.
       </p>
       <button
         className="tracker-button"

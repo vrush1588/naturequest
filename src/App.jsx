@@ -97,7 +97,7 @@ function App() {
 
   async function handleLoadModel() {
     setAiStatus("loading");
-    setAiMessage("Connecting to Ollama on this device's Naturequest host...");
+    setAiMessage("Connecting to Ollama on this device's Petal & Leaf host...");
 
     try {
       await loadModel();
@@ -194,9 +194,9 @@ function App() {
         <div className="site-header-row">
           <div>
             <p className="eyebrow">A little outside, every day</p>
-            <h1>🌱 Naturequest</h1>
+            <h1>🌱 Petal &amp; Leaf</h1>
             <p className="tagline">
-              Quests for your hands, eyes, and ears. Phone stays in your pocket.
+              Touch the soil. Look at the leaf. Spot the flower. Phone back in your pocket.
             </p>
           </div>
           <button
@@ -212,7 +212,7 @@ function App() {
         </div>
       </header>
 
-      <nav className="site-tabs" role="tablist" aria-label="Naturequest sections">
+      <nav className="site-tabs" role="tablist" aria-label="Petal & Leaf sections">
         {[
           ["check", "Check Plant"],
           ["quests", "Quests"],
