@@ -4,10 +4,11 @@ const soilAdvice = {
   wet: "Soil is soggy, skip watering and check drainage",
 };
 
-const seasonalTips = {
+export const SEASONAL_TIPS = {
   monsoon: "Pinch flower tips to encourage leafy growth, and protect Tulsi from heavy rain.",
   winter: "Water less in cool weather and keep Tulsi in a sunny, sheltered spot.",
   summer: "Check the soil daily, water in the morning, and give Tulsi shade in extreme heat.",
+  spring: "Give Tulsi a sunny spot and pinch new tips to encourage healthy, bushy growth.",
 };
 
 export function getCurrentSeason(date = new Date()) {
@@ -19,15 +20,22 @@ export function getCurrentSeason(date = new Date()) {
   if (month >= 9 || month <= 1) {
     return "winter";
   }
+  if (month === 2) {
+    return "spring";
+  }
   return "summer";
+}
+
+export function getSeasonalTip(season) {
+  const currentSeason = season?.trim().toLowerCase();
+  return SEASONAL_TIPS[currentSeason] ?? null;
 }
 
 export function getAdvice(soilState, season) {
   const soil = soilState?.trim().toLowerCase();
-  const currentSeason = season?.trim().toLowerCase();
 
   return {
     soilAdvice: soilAdvice[soil] ?? null,
-    seasonalTip: seasonalTips[currentSeason] ?? null,
+    seasonalTip: getSeasonalTip(season),
   };
 }

@@ -1,17 +1,21 @@
-const OLLAMA_API_URL = "http://localhost:11434";
 const MODEL_NAME = "gemma3:4b";
 
 let isConnected = false;
 let connectionPromise;
 let generationQueue = Promise.resolve();
 
+function getOllamaApiUrl() {
+  const hostname = window.location.hostname;
+  return `http://${hostname}:11434`;
+}
+
 async function fetchOllama(path, options) {
   let response;
   try {
-    response = await fetch(`${OLLAMA_API_URL}${path}`, options);
+    response = await fetch(`${getOllamaApiUrl()}${path}`, options);
   } catch {
     throw new Error(
-      "Could not reach Ollama. Make sure Ollama is running and allows requests from this app.",
+      `Could not reach Ollama at ${getOllamaApiUrl()}. On mobile, open Naturequest using your computer's LAN IP and allow that app origin in Ollama's OLLAMA_ORIGINS.`,
     );
   }
 
@@ -85,4 +89,37 @@ export async function generate(prompt) {
 
   generationQueue = generation.catch(() => undefined);
   return generation;
+}
+
+export async function analyzeImage(prompt, imageBase64) {
+  if (!isConnected) {
+    await loadModel();
+  }
+
+  const analysis = generationQueue.then(async () => {
+    const response = await fetchOllama("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: MODEL_NAME,
+        messages: [{ role: "user", content: prompt, images: [imageBase64] }],
+        stream: false,
+        keep_alive: "10m",
+        options: {
+          temperature: 0.2,
+          num_predict: 160,
+        },
+      }),
+    });
+    const result = await response.json();
+
+    if (typeof result.message?.content !== "string" || !result.message.content.trim()) {
+      throw new Error("Ollama returned an empty photo analysis.");
+    }
+
+    return result.message.content;
+  });
+
+  generationQueue = analysis.catch(() => undefined);
+  return analysis;
 }

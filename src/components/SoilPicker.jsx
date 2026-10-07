@@ -1,13 +1,6 @@
 const soilOptions = ["Dry", "Damp", "Wet"];
 
-function SoilPicker({
-  selectedSoil,
-  onSoilChange,
-  advice,
-  aiStatus,
-  aiMessage,
-  onLoadAI,
-}) {
+function SoilPicker({ selectedSoil, onSoilChange, advice }) {
   return (
     <div className="soil-picker">
       <div className="soil-options" role="group" aria-label="Soil moisture">
@@ -39,20 +32,6 @@ function SoilPicker({
           </p>
         )}
       </aside>
-      <div className="ai-controls">
-        <button
-          className="ai-load-button"
-          type="button"
-          onClick={onLoadAI}
-          disabled={aiStatus === "loading" || aiStatus === "ready"}
-        >
-          {aiStatus === "loading" ? "Connecting to Ollama…" : aiStatus === "ready" ? "Gemma connected" : "Connect to local Gemma"}
-        </button>
-        <p className={`ai-status ai-status-${aiStatus}`} role="status">
-          <span>{aiStatus === "loading" ? "Loading" : aiStatus === "ready" ? "Ready" : "Offline fallback"}</span>
-          {" — "}{aiMessage}
-        </p>
-      </div>
     </div>
   );
 }

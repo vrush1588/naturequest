@@ -4,18 +4,22 @@ import SoilPicker from "./components/SoilPicker.jsx";
 import Log from "./components/Log.jsx";
 import ThisWeek from "./components/ThisWeek.jsx";
 import OutsideTracker from "./components/OutsideTracker.jsx";
+import PlantCheck from "./components/PlantCheck.jsx";
 import { FALLBACK_QUESTS, parseDailyPlan } from "./ai/dailyPlan.js";
 import { generate, loadModel } from "./ai/gemma.js";
 import { getAdvice, getCurrentSeason } from "./utils/advice.js";
 import { deleteEntry, getEntries, saveEntry } from "./utils/storage.js";
 
 function App() {
+  const [activeTab, setActiveTab] = useState("check");
   const [soil, setSoil] = useState("");
   const [place, setPlace] = useState("My balcony");
   const [quests, setQuests] = useState(FALLBACK_QUESTS);
   const [completedQuests, setCompletedQuests] = useState([]);
   const [note, setNote] = useState("");
   const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [whatHeard, setWhatHeard] = useState("");
+  const [birdAudioDataUrl, setBirdAudioDataUrl] = useState("");
   const [entries, setEntries] = useState([]);
   const [storageError, setStorageError] = useState("");
   const [isLoadingEntries, setIsLoadingEntries] = useState(true);
@@ -93,7 +97,7 @@ function App() {
 
   async function handleLoadModel() {
     setAiStatus("loading");
-    setAiMessage("Connecting to Ollama at http://localhost:11434...");
+    setAiMessage("Connecting to Ollama on this device's Naturequest host...");
 
     try {
       await loadModel();
@@ -113,18 +117,51 @@ function App() {
     );
   }
 
+  function handleSavePlantCheck({ photoDataUrl: checkedPhoto, result: plantCheckResult }) {
+    try {
+      const entry = saveEntry({
+        plantName: plantCheckResult.plant || "Plant check",
+        soilState: soil || "Not recorded",
+        note: "",
+        questsCompleted: [],
+        photoDataUrl: checkedPhoto,
+        plantCheckResult,
+      });
+      setEntries((currentEntries) =>
+        [entry, ...currentEntries].sort(
+          (a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime(),
+        ),
+      );
+      setStorageError("");
+      return true;
+    } catch (error) {
+      if (/quota|storage|exceed/i.test(error.message)) {
+        setStorageError("Your browser storage is full. Remove older log entries and try again.");
+      } else {
+        setStorageError("Could not save the plant check to your log. Please try again.");
+      }
+      return false;
+    }
+  }
+
   function handleSaveEntry() {
     if (!soil) {
       return;
     }
 
     try {
+      const questsToSave =
+        whatHeard.trim() || birdAudioDataUrl
+          ? [...new Set([...completedQuests, "Listen for a bird"])]
+          : completedQuests;
       const entry = saveEntry({
         plantName: "tulsi",
         soilState: soil,
         note: note.trim(),
-        questsCompleted: completedQuests,
+        questsCompleted: questsToSave,
         photoDataUrl,
+        whatHeard: whatHeard.trim(),
+        birdAudioDataUrl,
       });
       setEntries((currentEntries) =>
         [entry, ...currentEntries].sort(
@@ -133,6 +170,8 @@ function App() {
       );
       setNote("");
       setPhotoDataUrl("");
+      setWhatHeard("");
+      setBirdAudioDataUrl("");
       setStorageError("");
     } catch (error) {
       setStorageError(error.message);
@@ -152,65 +191,132 @@ function App() {
   return (
     <main className="page">
       <header className="site-header">
-        <p className="eyebrow">A little outside, every day</p>
-        <h1>🌱 Naturequest</h1>
-        <p className="tagline">
-          Quests for your hands, eyes, and ears. Phone stays in your pocket.
-        </p>
+        <div className="site-header-row">
+          <div>
+            <p className="eyebrow">A little outside, every day</p>
+            <h1>🌱 Naturequest</h1>
+            <p className="tagline">
+              Quests for your hands, eyes, and ears. Phone stays in your pocket.
+            </p>
+          </div>
+          <button
+            className={`gemma-badge gemma-badge-${aiStatus}`}
+            type="button"
+            onClick={handleLoadModel}
+            disabled={aiStatus === "loading" || aiStatus === "ready"}
+            title={aiMessage}
+            aria-label={`Gemma status: ${aiStatus}. ${aiMessage}`}
+          >
+            Gemma: {aiStatus === "ready" ? "Ready" : aiStatus === "loading" ? "Connecting…" : "Offline"}
+          </button>
+        </div>
       </header>
 
+      <nav className="site-tabs" role="tablist" aria-label="Naturequest sections">
+        {[
+          ["check", "Check Plant"],
+          ["quests", "Quests"],
+          ["log", "Log"],
+        ].map(([tab, label]) => (
+          <button
+            className="site-tab"
+            id={`${tab}-tab`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab}
+            aria-controls={`${tab}-panel`}
+            tabIndex={activeTab === tab ? 0 : -1}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
       <div className="sections">
-        <section className="panel" aria-labelledby="quest-title">
-          <h2 id="quest-title">Today's quest</h2>
-          <QuestCard
-            quests={quests}
-            completedQuests={completedQuests}
-            onToggleQuest={toggleQuest}
-            planMessage={planMessage}
-          />
-          <div className="place-picker">
-            <label htmlFor="quest-place">Where are you today?</label>
-            <select
-              id="quest-place"
-              value={place}
-              onChange={(event) => setPlace(event.target.value)}
-            >
-              <option>My balcony</option>
-              <option>Friend's garden</option>
-            </select>
-          </div>
+        <section
+          className="tab-panel"
+          id="check-panel"
+          role="tabpanel"
+          aria-labelledby="check-tab"
+          hidden={activeTab !== "check"}
+        >
+          <PlantCheck onSave={handleSavePlantCheck} />
         </section>
-        <section className="panel" aria-labelledby="soil-title">
-          <h2 id="soil-title">How does the soil feel?</h2>
-          <SoilPicker
-            selectedSoil={soil}
-            onSoilChange={setSoil}
-            advice={advice}
-            aiStatus={aiStatus}
-            aiMessage={aiMessage}
-            onLoadAI={handleLoadModel}
-          />
+
+        <section
+          className="tab-panel sections"
+          id="quests-panel"
+          role="tabpanel"
+          aria-labelledby="quests-tab"
+          hidden={activeTab !== "quests"}
+        >
+          <section className="panel" aria-labelledby="quest-title">
+            <h2 id="quest-title">Today's quest</h2>
+            <QuestCard
+              quests={quests}
+              completedQuests={completedQuests}
+              onToggleQuest={toggleQuest}
+              planMessage={planMessage}
+            />
+            <div className="place-picker">
+              <label htmlFor="quest-place">Where are you today?</label>
+              <select
+                id="quest-place"
+                value={place}
+                onChange={(event) => setPlace(event.target.value)}
+              >
+                <option>My balcony</option>
+                <option>Friend's garden</option>
+              </select>
+            </div>
+          </section>
+          <section className="panel" aria-labelledby="soil-title">
+            <h2 id="soil-title">How does the soil feel?</h2>
+            <SoilPicker
+              selectedSoil={soil}
+              onSoilChange={setSoil}
+              advice={advice}
+            />
+          </section>
+          <details className="week-details">
+            <summary>This week’s seasonal tips</summary>
+            <section className="panel week-card" aria-labelledby="week-title">
+              <h2 id="week-title">Tulsi through the seasons</h2>
+              <ThisWeek season={season} aiStatus={aiStatus} />
+            </section>
+          </details>
         </section>
-        <section className="panel" aria-labelledby="log-title">
-          <h2 id="log-title">Your nature log</h2>
-          <Log
-            soilState={soil}
-            note={note}
-            onNoteChange={setNote}
-            photoDataUrl={photoDataUrl}
-            onPhotoChange={setPhotoDataUrl}
-            entries={entries}
-            isLoading={isLoadingEntries}
-            error={storageError}
-            onSave={handleSaveEntry}
-            onDelete={handleDeleteEntry}
-          />
+
+        <section
+          className="tab-panel sections"
+          id="log-panel"
+          role="tabpanel"
+          aria-labelledby="log-tab"
+          hidden={activeTab !== "log"}
+        >
+          <section className="panel" aria-labelledby="log-title">
+            <h2 id="log-title">Your nature log</h2>
+            <Log
+              soilState={soil}
+              note={note}
+              onNoteChange={setNote}
+              photoDataUrl={photoDataUrl}
+              onPhotoChange={setPhotoDataUrl}
+              whatHeard={whatHeard}
+              onWhatHeardChange={setWhatHeard}
+              birdAudioDataUrl={birdAudioDataUrl}
+              onBirdAudioChange={setBirdAudioDataUrl}
+              entries={entries}
+              isLoading={isLoadingEntries}
+              error={storageError}
+              onSave={handleSaveEntry}
+              onDelete={handleDeleteEntry}
+            />
+          </section>
+          <OutsideTracker />
         </section>
-        <section className="panel" aria-labelledby="week-title">
-          <h2 id="week-title">This week</h2>
-          <ThisWeek />
-        </section>
-        <OutsideTracker />
       </div>
 
       <footer className="site-footer">Take a breath. Notice something small.</footer>

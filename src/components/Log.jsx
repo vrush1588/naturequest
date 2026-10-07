@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { resizeImageToDataUrl } from "../utils/image.js";
+import BirdNote from "./BirdNote.jsx";
 
 function Log({
   soilState,
@@ -7,6 +8,10 @@ function Log({
   onNoteChange,
   photoDataUrl,
   onPhotoChange,
+  whatHeard,
+  onWhatHeardChange,
+  birdAudioDataUrl,
+  onBirdAudioChange,
   entries,
   isLoading,
   error,
@@ -62,6 +67,12 @@ function Log({
       {photoDataUrl && (
         <img className="photo-preview" src={photoDataUrl} alt="Selected nature log attachment" />
       )}
+      <BirdNote
+        whatHeard={whatHeard}
+        onWhatHeardChange={onWhatHeardChange}
+        audioDataUrl={birdAudioDataUrl}
+        onAudioChange={onBirdAudioChange}
+      />
       <button
         className="save-button"
         type="button"
@@ -111,6 +122,35 @@ function Log({
                   />
                 )}
                 {entry.note && <p className="entry-note">{entry.note}</p>}
+                {entry.whatHeard && (
+                  <p className="entry-note"><strong>What I heard:</strong> {entry.whatHeard}</p>
+                )}
+                {entry.birdAudioDataUrl && (
+                  <audio className="entry-audio" controls src={entry.birdAudioDataUrl}>
+                    Audio playback is not supported by this browser.
+                  </audio>
+                )}
+                {entry.plantCheckResult && (
+                  <div className="saved-analysis">
+                    <p className="analysis-label">AI guess, not a diagnosis</p>
+                    <p><strong>Plant:</strong> {entry.plantCheckResult.plant}</p>
+                    <p><strong>About:</strong> {entry.plantCheckResult.about}</p>
+                    <div>
+                      <strong>Visible issues:</strong>
+                      {entry.plantCheckResult.issues.length > 0 ? (
+                        <ul>
+                          {entry.plantCheckResult.issues.map((issue, index) => (
+                            <li key={`${issue}-${index}`}>{issue}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>None noticed in this photo.</p>
+                      )}
+                    </div>
+                    <p><strong>Care tip:</strong> {entry.plantCheckResult.tip}</p>
+                    <p><strong>Confidence:</strong> {entry.plantCheckResult.confidence}</p>
+                  </div>
+                )}
                 <p className="entry-quests-title">
                   Quests completed: {entry.questsCompleted.length}
                 </p>
