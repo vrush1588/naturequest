@@ -1,23 +1,64 @@
+![Petal & Leaf balcony garden banner](./images/Screenshot%202026-10-07%20153632.png)
+
 # 🌱 Petal & Leaf
 
 > Touch the soil. Look at the leaf. Spot the flower. Phone back in your pocket.
 
 Petal & Leaf gives you small daily quests for your plants (touch the soil,
 check the leaves, listen for a bird), then helps you log what you found.
-An open-weight Gemma model runs in your browser, so it works offline and
-your notes never leave your device.
+When available, the open Gemma 3 4B model runs locally through Ollama to
+suggest quests, care tips, and photo observations. Built-in advice keeps working
+when Ollama is unavailable.
 
 Built for the DEV Hacktoberfest Open-Source AI Challenge: Week 1 (Touch Grass).
 
+## App screenshots
+
+| Check Plant | Quests |
+| --- | --- |
+| ![Check Plant photo analysis and result](./images/petal_leaf_banner.png) | ![Tulsi quests, soil picker, and seasonal tips](./images/Screenshot%202026-10-07%20153949.png) |
+
+### Nature log
+
+![Nature log with saved observations and screen/outside tracker](./images/Screenshot%202026-10-07%20153711.png)
+
+## Gemma use cases
+
+Petal & Leaf connects to the local `gemma3:4b` Ollama model for:
+
+- **Plant photo checks:** suggest a likely plant, describe visible details,
+  mention visible issues, and offer a photo-specific care tip. This is an AI
+  guess, not a diagnosis.
+- **Daily quest planning:** create three short, hands-on Tulsi quests using the
+  selected soil state, season, and place.
+- **Friendly seasonal care:** rephrase the current seasonal table tip in a
+  welcoming voice.
+
+Photo checks are optional. The app resizes photos before sending them to Ollama.
+It does not identify birds.
+
+## GitHub Copilot use cases
+
+GitHub Copilot can help contributors extend this project by:
+
+- Building and refining the React components and mobile-first styles.
+- Explaining and updating the Ollama API integration and JSON response handling.
+- Adding accessible UI states, local-first logging, and fallback behavior.
+- Drafting focused tests and keeping the README and setup guidance current.
+
+Copilot is a development aid; it is not required to run the app. Runtime AI
+features use the configured local Ollama model.
+
 ## Why open-source AI?
 
-- Works with no signal
-- Your garden data stays on your device
-- Swap models or change quest style freely
+- Plant care advice and quests have built-in fallbacks when Ollama is offline.
+- With Ollama on the same computer, photos and prompts are sent to that local
+  service rather than a hosted AI API.
+- The model can be changed in the Ollama integration.
 
 ## Tech
 
-React + Vite, Gemma (in-browser), SQLite/local storage, optional PWA
+React + Vite, Ollama with Gemma 3 4B, and browser local storage
 
 ## Run locally
 
