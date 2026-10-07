@@ -1,4 +1,4 @@
-![Petal & Leaf balcony garden banner](./images/Screenshot%202026-10-07%20153632.png)
+![Petal & Leaf balcony garden banner](./images/petal_leaf_banner.png)
 
 # 🌱 Petal & Leaf
 
@@ -16,7 +16,7 @@ Built for the DEV Hacktoberfest Open-Source AI Challenge: Week 1 (Touch Grass).
 
 | Check Plant | Quests |
 | --- | --- |
-| ![Check Plant photo analysis and result](./images/petal_leaf_banner.png) | ![Tulsi quests, soil picker, and seasonal tips](./images/Screenshot%202026-10-07%20153949.png) |
+| ![Check Plant photo analysis and result](./images/Screenshot%202026-10-07%20153632.png) | ![Tulsi quests, soil picker, and seasonal tips](./images/Screenshot%202026-10-07%20153949.png) |
 
 ### Nature log
 
