@@ -3,7 +3,7 @@ import { analyzeImage } from "../ai/gemma.js";
 import { resizeImageToDataUrl } from "../utils/image.js";
 
 const ANALYSIS_PROMPT =
-  `You are a friendly plant helper. Look at this photo. Reply with JSON only, no extra text: {"plant": "likely name or 'not sure'", "about": "one short sentence", "issues": ["visible problems, or empty list"], "tip": "one simple care tip", "confidence": "low|medium|high"}. Never claim certainty.`;
+  `You are a friendly plant helper. Look at this photo. Reply with JSON only, no extra text: {"plant": "likely name or 'not sure'", "about": "one short sentence", "issues": ["visible problems, or empty list"], "tip": "one sentence, max 20 words, specific to what is visible in the photo (flowers, leaf color, spots, growth); do not give generic advice like 'give it sunlight'", "confidence": "low|medium|high"}. Never claim certainty.`;
 const ANALYSIS_ERROR = "Could not analyze this photo. Try a clearer, closer photo.";
 
 function parseAnalysis(response) {
